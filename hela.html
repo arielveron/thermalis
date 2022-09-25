@@ -1,0 +1,337 @@
+<html>
+  <head>
+    <style>
+      #panel {
+        position: absolute;
+        display: flex;
+        font-size: 14px;
+      }
+
+      body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+          "Lucida Sans", Arial, sans-serif;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr minmax(200px, 8fr) 1fr;
+        justify-items: center;
+      }
+
+      .container {
+        grid-column-start: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        height: 100vh;
+      }
+      .hide {
+        display: none;
+      }
+
+      .big {
+        display: flex;
+        align-items: flex-start;
+        font-family: Ubuntu, sans-serif;
+        font-size: min(40vh, 40vw);
+        color: rgb(21, 21, 97);
+      }
+
+      #engine {
+        margin-bottom: 20px;
+      }
+
+      .box {
+        background-color: rgb(5, 172, 55);
+        height: 20px;
+        transition: width 0.5s ease-in-out;
+        width: 0px;
+      }
+
+      .progress-bar {
+        display: flex;
+        align-items: center;
+      }
+
+      .progress-bar div {
+        white-space: nowrap;
+      }
+
+      .envelope {
+        width: 100%;
+        border: 1px solid darkgray;
+        padding: 5px;
+        margin: 5px;
+      }
+
+      .pulse {
+        animation: pulse 1s infinite;
+      }
+
+      .box-red {
+        background-color: red;
+      }
+
+      .red {
+        color: red;
+        font-size: 1.5em;
+      }
+      .blue {
+        color: blue;
+        font-size: 1.5em;
+      }
+
+      .pointer {
+        cursor: pointer;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+
+        100% {
+          transform: scale(1.5);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="panel">
+      <div>Front: v1.1</div>
+      <div>|</div>
+      <div>Back: v<span id="dispBackendVersion">0</span></div>
+      <div>|</div>
+      <div id="configBackend"><a href="#">Cambiar dirección Arduino</a></div>
+    </div>
+    <div class="grid">
+      <div class="container">
+        <h2 id="termoNasaLogo" style="font-style: italic">
+          <span style="color: red">Termo</span>NASA
+        </h2>
+        <h2 id="helaNasaLogo" class="hide" style="font-style: italic">
+          <span style="color: blue">Hela</span>NASA
+        </h2>
+        <div class="big">
+          <span id="temperature">0.0</span
+          ><span style="font-size: 0.25em">º</span>
+        </div>
+        <div id="engine">
+          <div><img src="engineOn.png" id="engineOn" class="hide pulse" /></div>
+          <div><img src="engineOff.png" id="engineOff" class="" /></div>
+        </div>
+        <div class="progress-bar">
+          <div><span id="dispTempMin" class="pointer">0</span>º &lt;</div>
+          <div class="envelope">
+            <div id="box" class="box"></div>
+          </div>
+          <div>&gt; <span id="dispTempMax" class="pointer">0</span>º</div>
+        </div>
+        <div id="dispActiveTimeSpan">Default</div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("configBackend")
+        .addEventListener("click", configBackendAddress);
+      document
+        .getElementById("dispTempMin")
+        .addEventListener("click", setTempMin);
+      document
+        .getElementById("dispTempMax")
+        .addEventListener("click", setTempMax);
+
+      const historySize = 20;
+      const smoothSize = 3;
+
+      let historicTemps = [];
+      storage = window.localStorage;
+      let backendAddress = getConfig();
+
+      if (!backendAddress) {
+        backendAddress = configBackendAddress();
+      }
+
+      const interval = setInterval(function () {
+        fetch(parseGet(backendAddress))
+          .then((response) => response.json())
+          .then((json) => {
+            const {
+              currentTemp,
+              motorOn,
+              tempMax,
+              tempMin,
+              backendVersion,
+              monitoringMode,
+              timeSpanName
+            } = json;
+
+            const workingTemp = displayAverageTemp(currentTemp, historicTemps);
+
+            displayBackendVersion(backendVersion);
+            displayActiveTimeSpan(timeSpanName);
+            displayMonitorModeLogo(monitoringMode);
+            displayProgressBarTemp(workingTemp, tempMin, tempMax);
+            switchEngineDisplay(motorOn);
+            displayMinMaxTemps(workingTemp, tempMin, tempMax);
+          })
+          .catch((err) => console.log("Solicitud fallida", err));
+      }, 500);
+
+      function displayMonitorModeLogo(monitoringMode) {
+        if (monitoringMode == "HelaNASA") {
+          document.getElementById("helaNasaLogo").classList?.remove('hide');
+          document.getElementById("termoNasaLogo").classList?.add('hide');
+        }
+        if (monitoringMode == "TermoNASA") {
+          document.getElementById("helaNasaLogo").classList?.add('hide');
+          document.getElementById("termoNasaLogo").classList?.remove('hide');
+        }
+      }
+
+      function displayBackendVersion(backendVersion) {
+        const displayBackendVersion = document.getElementById("dispBackendVersion");
+        displayBackendVersion.innerHTML = backendVersion;
+      }
+
+      function displayActiveTimeSpan(timeSpanName) {
+        const displayActiveTimeSpan = document.getElementById("dispActiveTimeSpan");
+        displayActiveTimeSpan.innerHTML = timeSpanName;
+      }
+
+      function displayAverageTemp(newTemp, historicTemps) {
+        const temperature = document.getElementById("temperature");
+        let result;
+        enqueueLIFO(historicTemps, newTemp);
+        const lastTemps = historicTemps.slice(-smoothSize);
+        const avgTemp = lastTemps.reduce((a, b) => a + b, 0) / lastTemps.length;
+        result = avgTemp.toFixed(1);
+
+        temperature.innerHTML = result;
+        return result;
+      }
+
+      function enqueueLIFO(historicTemps, newTemp) {
+        if (historicTemps.length < historySize) {
+          historicTemps.push(newTemp);
+        } else {
+          historicTemps.shift();
+          historicTemps.push(newTemp);
+        }
+      }
+
+      function displayProgressBarTemp(currentTemp, tempMin, tempMax) {
+        let box = document.getElementById("box");
+        let pct = calculatePct(currentTemp, tempMin, tempMax);
+        box.style.width = pct + "%";
+
+        if (currentTemp > tempMax) {
+          box.classList.add("box-red");
+        } else {
+          box.classList.remove("box-red");
+        }
+      }
+
+      function displayMinMaxTemps(currentTemp, tempMin, tempMax) {
+        let dispTempMin = document.getElementById("dispTempMin");
+        let dispTempMax = document.getElementById("dispTempMax");
+        dispTempMin.innerHTML = tempMin;
+        dispTempMax.innerHTML = tempMax;
+
+        if (currentTemp > tempMax) {
+          dispTempMax.classList.add("red");
+          dispTempMin.classList.remove("blue");
+        } else if (currentTemp < tempMin) {
+          dispTempMax.classList.remove("red");
+          dispTempMin.classList.add("blue");
+        } else {
+          dispTempMax.classList.remove("red");
+          dispTempMin.classList.remove("blue");
+        }
+      }
+
+      function switchEngineDisplay(motorOn) {
+        let engineOn = document.getElementById("engineOn");
+        let engineOff = document.getElementById("engineOff");
+        if (motorOn) {
+          engineOn.classList.remove("hide");
+          engineOff.classList.add("hide");
+        } else {
+          engineOn.classList.add("hide");
+          engineOff.classList.remove("hide");
+        }
+      }
+
+      function calculatePct(currentTemp, tempMin, tempMax) {
+        let pct = ((currentTemp - tempMin) * 100) / (tempMax - tempMin);
+        pct = pct < 0 ? 0 : pct;
+        pct = pct > 100 ? 100 : pct;
+        return pct;
+      }
+
+      function getConfig() {
+        result = storage.getItem("backendAddress");
+        return result;
+      }
+
+      function configBackendAddress() {
+        backendAddress = window.prompt(
+          "Escriba la dirección del arduino (ej: http://192.168.50.100)"
+        );
+        storage.setItem("backendAddress", backendAddress);
+
+        if (backendAddress.slice(-1) == "/") {
+          backendAddress = backendAddress.slice(0, -1);
+        }
+        return backendAddress;
+      }
+
+      function parseGet(address) {
+        result = address + "/get";
+
+        if (address.slice(-5) == ".json") {
+          // hack for develop
+          result = address;
+        }
+
+        return result;
+      }
+
+      function setTempMin() {
+        let tempMin = window.prompt(
+          "Escriba un entero para la temperatura MINIMA"
+        );
+        fetch(backendAddress + "/set/tempmin/" + tempMin)
+          .then((response) => {
+            if (!response.ok) throw new Error();
+
+            window.alert(response);
+          })
+          .catch((err) =>
+            window.alert("Falló al configurar la temperatura MINIMA", err)
+          );
+      }
+      function setTempMax() {
+        let tempMax = window.prompt(
+          "Escriba un entero para la temperatura MAXIMA"
+        );
+        fetch(backendAddress + "/set/tempmax/" + tempMax)
+          .then((response) => {
+            if (!response.ok) throw new Error();
+
+            window.alert(response);
+          })
+          .catch((err) =>
+            window.alert("Falló al configurar la temperatura MAXIMA", err)
+          );
+      }
+
+      //clearInterval(interval);
+    </script>
+  </body>
+</html>
