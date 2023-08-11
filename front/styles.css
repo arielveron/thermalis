@@ -1,0 +1,164 @@
+#panel {
+  position: absolute;
+  display: flex;
+  font-size: 14px;
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 8fr) 1fr;
+  justify-items: center;
+}
+
+.container {
+  grid-column-start: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  height: 100vh;
+}
+.hide {
+  display: none;
+}
+
+.big {
+  display: flex;
+  align-items: flex-start;
+  font-family: Ubuntu, sans-serif;
+  font-size: min(40vh, 40vw);
+  color: rgb(21, 21, 97);
+}
+
+#engine {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
+  margin-bottom: 20px;
+}
+#engine .time {
+  font-size: 0.9em;
+}
+
+.box {
+  background-color: rgb(5, 172, 55);
+  height: 20px;
+  transition: width 0.5s ease-in-out;
+  width: 0px;
+}
+
+.progress-bar {
+  display: flex;
+  align-items: center;
+}
+
+.progress-bar div {
+  white-space: nowrap;
+}
+
+.envelope {
+  width: 100%;
+  border: 1px solid darkgray;
+  padding: 5px;
+  margin: 5px;
+}
+
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+.box-red {
+  background-color: red;
+}
+
+.red {
+  color: red;
+  /* font-size: 1.5em; */
+}
+.blue {
+  color: blue;
+  /* font-size: 1.5em; */
+}
+.green {
+  color: green;
+}
+.gray {
+  color: gray;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.5);
+  }
+}
+
+#displayBackendTime {
+  font-size: 5em;
+  font-weight: bold;
+  color:rgb(21, 21, 97);
+}
+
+.title {
+  font-weight: bold;
+}
+
+#clock {
+  margin-bottom: 3em;
+  border: 1px solid darkgray;
+  padding: 1em;
+}
+
+.timeSpan {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1em;
+  padding: 0.4em;
+  border-bottom: 1px solid gray;
+}
+.timeSpan:hover {
+  background-color: lightblue;
+}
+
+.timeSpan div {
+  padding: 1em;
+}
+.timeSpan div:hover {
+  background-color: aquamarine;
+  cursor: pointer;
+}
+
+.force span {
+  white-space: nowrap;
+  font-size: 0.8em;
+  border: 1px solid black;
+  border-radius: 3px;
+  background-color: #efefef;
+  padding: 0.3em 0.5em;
+
+}
+
+.tsSelected {
+  background-color: lightgrey;
+}
+
+.tsForced {
+  background-color: lightcoral;
+}

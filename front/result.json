@@ -1,0 +1,13 @@
+{
+  "currentTemp": 24.7,
+  "motorOn": false,
+  "tempMax": 11,
+  "tempMin": 10,
+  "backendVersion": "2.2.5",
+  "monitoringMode": "TermoNASA",
+  "timeSpanName": "Noche",
+  "motorStartTime": "2334",
+  "motorEndTime": "0014",
+  "timeSpanid": 1,
+  "tsForced": -1
+  }

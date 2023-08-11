@@ -1,0 +1,59 @@
+<html>
+  <head>
+    <title>Termalis</title>
+    <meta charset="UTF-8" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicons/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="favicons/favicon.ico">
+    <link rel="stylesheet" href="styles.css" />
+    <script src="utils.js" defer></script>
+    <script src="index.js" defer></script>
+  </head>
+  <body>
+    <div id="panel">
+      <div>Front: v2.2.2</div>
+      <div> | </div>
+      <div>Back: v<span id="dispBackendVersion">0</span></div>
+      <div> | </div>
+      <div id="configBackend"><a href="#">Cambiar dirección Arduino</a></div>
+      <div> | </div>
+      <div><a href="config.html" target="_blank">Configuración</a></div>
+    </div>
+    <div class="grid">
+      <div class="container">
+        <h2 id="termoNasaLogo" style="font-style: italic">
+          <span style="color: red">Termo</span>NASA
+        </h2>
+        <h2 id="helaNasaLogo" class="hide" style="font-style: italic">
+          <span style="color: blue">Hela</span>NASA
+        </h2>
+        <div class="big">
+          <span id="temperature">0.0</span
+          ><span style="font-size: 0.25em">º</span>
+        </div>
+        <div id="engine">
+          <div>
+            <div>
+              <img src="engineOn.png" id="engineOn" class="hide pulse" />
+            </div>
+            <div><img src="engineOff.png" id="engineOff" class="" /></div>
+          </div>
+          <div id="dispEngineMessage"></div>
+        </div>
+        <div class="progress-bar">
+          <div><span id="dispTempMin" class="pointer">0</span>º &lt;</div>
+          <div class="envelope">
+            <div id="box" class="box"></div>
+          </div>
+          <div>&gt; <span id="dispTempMax" class="pointer">0</span>º</div>
+        </div>
+        <div>
+          <span id="dispActiveTimeSpan">Default</span><span id="dispActiveTimeForced" class="red"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

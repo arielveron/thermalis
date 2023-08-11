@@ -1,0 +1,7 @@
+const char* ssid = "KameHouse";
+const char* password = "2307wifi.";
+
+IPAddress ip (192, 168, 50, 100);
+IPAddress gateway (192, 168, 50, 1);
+IPAddress subnet (255, 255, 255, 0);
+IPAddress dns (8, 8, 8, 8);
