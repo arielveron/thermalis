@@ -6,10 +6,10 @@
 //IPAddress subnet (255, 255, 255, 0);
 //IPAddress dns (8, 8, 8, 8);
 
-const char* ssid = "Fibertel WiFi543 2.4GHz";
-const char* password = "VeLuNico2015";
+const char* ssid = "Fibertel WiFi543 2.4GHz.";
+const char* password = "IsaLili1958";
 
 IPAddress ip (192, 168, 0, 100);
-IPAddress gateway (192, 168, 50, 1);
+IPAddress gateway (192, 168, 0, 1);
 IPAddress subnet (255, 255, 255, 0);
 IPAddress dns (8, 8, 8, 8);

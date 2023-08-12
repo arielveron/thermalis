@@ -53,15 +53,15 @@ void setup() {
 //  server.begin();
   InitServer();
 
-//  while (WiFi.status() != WL_CONNECTED) {
-//    delay(500);
-//    Serial.print(".");
-//  }
+while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+}
 
-//  Serial.println("");
-//  Serial.println("Red WiFi conectada");
-//  Serial.println("Dirección IP: ");
-//  Serial.println(WiFi.localIP());
+  Serial.println("");
+  Serial.println("Red WiFi conectada");
+  Serial.println("Dirección IP: ");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
